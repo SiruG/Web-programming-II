@@ -1,0 +1,431 @@
+/* ===== SCROLL SETTINGS ===== */
+html, body {
+  height: auto;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* ===== GOOGLE FONTS =====
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@600&family=Open+Sans&display=swap" rel="stylesheet">
+*/
+
+:root {
+  --primary: #FFBFAE;       /* Soft Peach */
+  --secondary: #544b4a;     /* Cocoa Brown */
+  --background: #FFF8F0;    /* Cream */
+  --accent: #B23A48;        /* Deep Rose */
+  --border: #EED6C4;        /* Warm Beige */
+  --text-dark: #3C2F2F;
+  --text-light: #ffffff;
+  --shadow-light: rgba(0, 0, 0, 0.1);
+  --shadow-medium: rgba(0, 0, 0, 0.2);
+}
+
+/* ===== GLOBAL RESET ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  background: var(--background);
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+/* ===== HEADINGS ===== */
+h1, h2, h3 {
+  font-family: 'Poppins', sans-serif;
+  color: var(--secondary);
+}
+
+.logo {
+  font-family: 'Pacifico', cursive;
+  font-size: 2.2rem;
+  color: var(--text-light);
+}
+
+/* ===== HEADER ===== */
+header {
+  background-color: var(--secondary);
+  padding: 1.5rem 0;
+  text-align: center;
+  box-shadow: 0 2px 6px var(--shadow-light);
+}
+
+nav {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Override Bootstrap nav-link default blue color */
+.nav-link {
+  color: var(--text-light) !important;  /* Cocoa Brown */
+  font-weight: 600;
+}
+
+.nav-link:hover,
+.nav-link:focus-visible {
+  color: var(--primary) !important;  /* Soft Peach on hover */
+  text-decoration: none;
+}
+
+/* ===== MAIN CONTENT ===== */
+main {
+  padding: 2rem 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ===== WELCOME SECTION ===== */
+.welcome-section {
+  background-color: var(--border);
+  padding: 40px 20px;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* ===== GALLERY SECTION ===== */
+.image-gallery {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.gallery-item {
+  flex: 1 1 300px;
+  max-width: 300px;
+  background: var(--border);
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px var(--shadow-light);
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.gallery-item:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px var(--shadow-medium);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 3px solid var(--primary);
+}
+
+.gallery-item p {
+  margin-top: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 1.1rem;
+}
+
+/* ===== PRODUCT LISTING ===== */
+.products {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.product {
+  flex: 1 1 250px;
+  max-width: 250px;
+  background: var(--border);
+  border-radius: 16px;
+  text-align: center;
+  padding: 1rem;
+  text-decoration: none;
+  color: var(--text-dark);
+  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 4px 12px var(--shadow-light);
+}
+
+.product:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px var(--shadow-medium);
+}
+
+.product img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 3px solid var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.product h3 {
+  margin: 0.5rem 0;
+  font-size: 1.3rem;
+  color: var(--accent);
+}
+
+.product p {
+  font-weight: 600;
+}
+
+/* ===== PRODUCT DETAIL PAGE ===== */
+.product-detail {
+  max-width: 600px;
+  margin: 2rem auto;
+  background: var(--background);
+  padding: 2rem;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px var(--shadow-light);
+  text-align: center;
+}
+
+.product-detail img {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  border-radius: 12px;
+  border: 3px solid var(--primary);
+  margin-bottom: 1rem;
+}
+
+.product-detail h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--accent);
+}
+
+.product-detail p {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.product-detail a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.product-detail a:hover {
+  color: var(--primary);
+}
+
+.product-list h2 {
+  margin: 30px 0;
+  text-align: center;
+}
+
+/* ===== FORMS (Feedback / Contact / Order) ===== */
+form {
+  background: var(--border);
+  padding: 2.5rem;
+  border-radius: 12px;
+  max-width: 720px;
+  margin: 2rem auto;
+  box-shadow: 0 4px 10px var(--shadow-light);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+label {
+  font-weight: 600;
+  color: var(--secondary);
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.button {
+  background-color: var(--secondary);
+  color: var(--text-light);
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  align-self: flex-start;
+}
+
+.button:hover {
+  background-color: #3a241e;
+}
+
+/* ===== CONTACT BOX (Responsive Wider Width) ===== */
+.contact-section {
+  max-width: 800px;   /* increased from 800px */
+  width: 60%;          /* more flexible on larger screens */
+  padding: 3rem 2.5rem;
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 6px 18px var(--shadow-light);
+  text-align: center;
+  margin: 3rem auto;
+}
+
+.contact-section h2 {
+  font-size: 2.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.contact-section p {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  background-color: var(--secondary);
+  color: var(--text-light);
+  text-align: center;
+  padding: 1rem 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 2rem;
+}
+
+/* ===== HOVER NAV PREVIEW SECTION ===== */
+.hover-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  margin: 2rem 0 3rem;
+}
+
+.hover-item {
+  position: relative;
+  text-align: center;
+}
+
+.hover-item a {
+  display: inline-block;
+  padding: 0.8rem 1.2rem;
+  background-color: var(--accent);
+  color: var(--text-light);
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.hover-item a:hover {
+  background-color: var(--primary);
+}
+
+.hover-preview {
+  position: absolute;
+  top: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  z-index: 100;
+  width: 400px;
+  height: 300px;
+  border: 3px solid var(--accent);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px var(--shadow-medium);
+  background: white;
+}
+
+.hover-item:hover .hover-preview {
+  display: block;
+}
+
+.hover-preview iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 700px) {
+  nav {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .image-gallery,
+  .products {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .gallery-item,
+  .product {
+    width: 90vw;
+    max-width: 90vw;
+  }
+
+  .gallery-item img,
+  .product img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  form, .contact-section {
+    width: 90%;
+    max-width: 90vw;
+  }
+
+  .product-detail img {
+    max-width: 100%;
+  }
+
+  .hover-preview {
+    width: 90vw;
+    height: 240px;
+  }
+}
+
+/* ==== OVERRIDES FOR BOOTSTRAP COLORS ==== */
+.nav-link {
+  color: var(--text-light) !important;  /* Cocoa Brown */
+  font-weight: 600;
+}
+
+.nav-link:hover,
+.nav-link:focus-visible {
+  color: var(--primary) !important;  /* Soft Peach on hover */
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: var(--secondary);
+  border-color: var(--secondary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: #3a241e;  /* Darker brown on hover */
+  border-color: #3a241e;
+  box-shadow: none;
+}
+
+.btn-primary:focus-visible {
+  outline-color: var(--primary);
+}
