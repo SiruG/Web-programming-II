@@ -1,0 +1,58 @@
+package com.example.Controller;
+
+import com.example.model.User;
+import com.example.service.LoginService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
+
+@Controller
+public class UserController {
+
+    private final LoginService loginService;
+
+    @Autowired
+    public UserController(LoginService loginService) {
+        this.loginService = loginService;
+    }
+
+    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    public ModelAndView showLogin() {
+        return new ModelAndView("user/login", "user", new User());
+    }
+
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    public ModelAndView loginUser(@ModelAttribute("user") User user) {
+        if (loginService.authenticate(user.getUsername(), user.getPassword())) {
+            return new ModelAndView("user/loginsummary", "user", user);
+        } else {
+            ModelAndView mav = new ModelAndView("user/login", "user", new User());
+            mav.addObject("errorMessage", "Invalid username or password.");
+            return mav;
+        }
+    }
+
+    @RequestMapping(value = "/registration", method = RequestMethod.GET)
+    public ModelAndView showRegistration() {
+        return new ModelAndView("user/registration", "user", new User());
+    }
+
+    @RequestMapping(value = "/registration", method = RequestMethod.POST)
+    public ModelAndView registerUser(@ModelAttribute("user") User user) {
+        if (loginService.register(user)) {
+            return new ModelAndView("user/loginsummary", "user", user);
+        } else {
+            ModelAndView mav = new ModelAndView("user/registration", "user", new User());
+            mav.addObject("errorMessage", "Username already exists.");
+            return mav;
+        }
+    }
+
+    @RequestMapping(value = "/logout", method = RequestMethod.GET)
+    public String logout() {
+        return "user/logout";
+    }
+}
