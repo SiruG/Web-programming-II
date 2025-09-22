@@ -1,0 +1,32 @@
+package com.example.service;
+
+import com.example.model.User;
+import org.springframework.stereotype.Service;
+import java.util.HashMap;
+import java.util.Map;
+@Service
+public class UserServiceImpl implements com.example.service.UserService {
+
+    private final Map<String, User> userDatabase = new HashMap<>();
+    public UserServiceImpl() {
+        // Pre-populate with a test user for demonstration purposes
+        User testUser = new User();
+        testUser.setUsername("testuser");
+        testUser.setPassword("password123");
+        userDatabase.put("testuser", testUser);
+    }
+    @Override
+    public boolean authenticate(String username, String password) {
+        User user = userDatabase.get(username);
+        return user != null && user.getPassword().equals(password);
+    }
+    @Override
+    public boolean register(User user) {
+        if (userDatabase.containsKey(user.getUsername())) {
+            // User with this username already exists
+            return false;
+        }
+        userDatabase.put(user.getUsername(), user);
+        return true;
+    }
+}
