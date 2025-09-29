@@ -1,0 +1,93 @@
+/* ===== LOGIN / REGISTRATION PAGE ===== */
+
+/* Container */
+.container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: var(--background); /* Cream background from styles.css */
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    text-align: center;
+    font-family: 'Open Sans', sans-serif;
+}
+
+/* Logo / Title */
+.logo {
+    font-family: 'Pacifico', cursive;
+    font-size: 2.8rem;
+    color: var(--accent); /* Deep Rose */
+    margin-bottom: 20px;
+}
+
+/* Headings */
+h2 {
+    color: var(--secondary); /* Cocoa Brown */
+    margin-bottom: 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Form Styling */
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border); /* Warm Beige */
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    border-color: var(--accent);
+    outline: none;
+}
+
+/* Buttons */
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--accent); /* Deep Rose */
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary); /* Soft Peach hover */
+}
+
+/* Error / Success messages */
+.message {
+    color: red;
+    margin-bottom: 15px;
+}
+
+/* Links */
+a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive tweaks */
+@media (max-width: 500px) {
+    .container {
+        margin: 30px 15px;
+        padding: 20px;
+    }
+
+    .logo {
+        font-size: 2.2rem;
+    }
+}
