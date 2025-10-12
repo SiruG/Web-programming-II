@@ -1,0 +1,123 @@
+package com.example.test;
+
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import org.junit.jupiter.api.*;
+
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.*;
+
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+public class LocalBakeryApiTest {
+
+    private static final String BASE_URL = "http://localhost:8080/SpringMvcHelloWorld";
+    private static String jwtToken;
+
+    @BeforeAll
+    public static void setup() {
+        RestAssured.baseURI = BASE_URL;
+        System.out.println("✅ LocalBakery API Base URL set to: " + BASE_URL);
+    }
+
+    // -------------------------------
+    // 1️⃣ User Registration Test
+    // -------------------------------
+    @Test
+    @Order(1)
+    public void testUserRegistration() {
+        String username = "testuser_" + System.currentTimeMillis();
+        String password = "TestPass123!";
+
+        System.out.println("\n=== Registering New User ===");
+        System.out.println("Username: " + username);
+
+        Response response = given()
+                .contentType("application/json")
+                .body("{\"username\":\"" + username + "\", \"password\":\"" + password + "\"}")
+                .when()
+                .post("/api/register")
+                .then()
+                .statusCode(anyOf(is(200), is(201), is(400)))
+                .extract().response();
+
+        System.out.println("Response: " + response.asString());
+    }
+
+    // -------------------------------
+    // 2️⃣ User Login Test
+    // -------------------------------
+    @Test
+    @Order(2)
+    public void testUserLogin() {
+        System.out.println("\n=== Logging In with Valid User ===");
+
+        Response response = given()
+                .contentType("application/json")
+                .body("{\"username\":\"testuser\", \"password\":\"TestPass123!\"}")
+                .when()
+                .post("/api/login")
+                .then()
+                .statusCode(200)
+                .body("success", equalTo(true))
+                .body("token", notNullValue())
+                .extract().response();
+
+        jwtToken = response.jsonPath().getString("token");
+        System.out.println("JWT Token obtained: " + jwtToken);
+        Assertions.assertNotNull(jwtToken, "JWT token should not be null after successful login");
+    }
+
+    // -------------------------------
+    // 3️⃣ Invalid Login Test
+    // -------------------------------
+    @Test
+    @Order(3)
+    public void testInvalidLogin() {
+        System.out.println("\n=== Testing Invalid Login ===");
+
+        given()
+                .contentType("application/json")
+                .body("{\"username\":\"wrongUser\", \"password\":\"WrongPass!\"}")
+                .when()
+                .post("/api/login")
+                .then()
+                .statusCode(401)
+                .body("success", equalTo(false))
+                .body("message", containsString("Invalid"));
+    }
+
+    // -------------------------------
+    // 4️⃣ Unauthorized Access Test
+    // -------------------------------
+    @Test
+    @Order(4)
+    public void testUnauthorizedAccessToProducts() {
+        System.out.println("\n=== Attempting Unauthorized Access to /api/products ===");
+
+        given()
+                .when()
+                .get("/api/products")
+                .then()
+                .statusCode(401)
+                .body("success", equalTo(false))
+                .body("message", containsString("Unauthorized"));
+    }
+
+    // -------------------------------
+    // 5️⃣ Authorized Access Test
+    // -------------------------------
+    @Test
+    @Order(5)
+    public void testAuthorizedAccessToProducts() {
+        System.out.println("\n=== Accessing /api/products with Valid JWT Token ===");
+
+        given()
+                .header("Authorization", "Bearer " + jwtToken)
+                .when()
+                .get("/api/products")
+                .then()
+                .statusCode(200)
+                .body("success", equalTo(true))
+                .body("products", notNullValue());
+    }
+}
