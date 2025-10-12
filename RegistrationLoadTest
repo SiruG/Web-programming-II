@@ -1,0 +1,195 @@
+package com.example.simulations
+
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+import scala.concurrent.duration._
+
+/**
+* Gatling Simulation for Load Testing the Local Bakery Authentication API and Order CRUD.
+* This simulation tests the entire user lifecycle: Register -> Login -> CRUD on /api/orders.
+* It uses unique, realistic data for each Virtual User (VU) based on Siru Ghimire.
+*/
+class LocalBakeryAuthSimulation extends Simulation {
+
+  // --- 1. HTTP Configuration ---
+  // Explicitly defined as a Gatling HttpProtocolBuilder
+  val httpProtocol: io.gatling.http.protocol.HttpProtocolBuilder = http
+    .baseUrl("http://localhost:8081/SpringMvcHelloWorld") // Base URL of the Local Bakery application
+    .acceptHeader("application/json")
+    .contentTypeHeader("application/json")
+    .userAgentHeader("Gatling/LocalBakeryPerformanceTest")
+
+  // --- 2. Feeders and Variables ---
+
+  // Fixed real name details for user/order data (as requested: Siru Ghimire)
+  private val realFirstName = "Siru"
+  private val realLastName = "Ghimire"
+  private val realFullName = s"$realFirstName $realLastName"
+
+  // Generate a short, unique, random suffix for the email address to ensure uniqueness for load test
+  private def uniqueSuffix(): String =
+    scala.util.Random.alphanumeric.filter(_.isLetterOrDigit).take(4).mkString.toLowerCase
+
+  // The password remains constant
+  private val testPassword = "BakeryPassword!123"
+
+  // Static, realistic contact number and delivery address
+  private val realContactNumber = "980-555-4321"
+  private val realDeliveryAddress = "123 Main Street, Kathmandu"
+
+  // Base order data used for the POST request, accepting the unique Suffix
+  private def orderData(uniqueSuffix: String): String = {
+    // Unique email in the format: siru.ghimire.<suffix>@localbakery.com
+    val email = s"${realFirstName.toLowerCase}.${realLastName.toLowerCase}.$uniqueSuffix@localbakery.com"
+    val baseItem = "Chocolate Chip Cookies (Dozen)"
+    val baseQuantity = 2
+
+    s"""{
+      "customerName": "$realFullName",
+      "customerEmail": "$email",
+      "deliveryAddress": "$realDeliveryAddress",
+      "contactNumber": "$realContactNumber",
+      "itemName": "$baseItem",
+      "quantity": $baseQuantity,
+      "status": "PENDING"
+    }"""
+  }
+
+  // Updated order data used for the PUT request
+  private val updatedItem = "Custom Birthday Cake"
+  private val updatedQuantity = 1
+  private val updatedStatus = "PREPARING"
+  private def updatedOrderData(uniqueSuffix: String): String = {
+    // The order data must include the unique email generated earlier
+    val email = s"${realFirstName.toLowerCase}.${realLastName.toLowerCase}.$uniqueSuffix@localbakery.com"
+
+    s"""{
+      "customerName": "$realFullName",
+      "customerEmail": "$email",
+      "deliveryAddress": "$realDeliveryAddress",
+      "contactNumber": "$realContactNumber",
+      "itemName": "$updatedItem",
+      "quantity": $updatedQuantity,
+      "status": "$updatedStatus"
+    }"""
+  }
+
+  // Invalid order data (missing item name) - remains fixed as a negative test case
+  private val invalidOrderData =
+    s"""{
+      "customerName": "Invalid Customer",
+      "customerEmail": "no.item@localbakery.com",
+      "deliveryAddress": "Unknown",
+      "contactNumber": "555-000-0000",
+      "quantity": 1
+    }"""
+
+
+  // --- 3. Scenario Definition ---
+
+  // Explicitly defined as a Gatling ScenarioBuilder
+  val scn: io.gatling.core.structure.ScenarioBuilder = scenario("Full Bakery Auth and Order Lifecycle Test")
+    // --- Setup: Generate Unique Credentials and Data ---
+    .exec(session => {
+      // Generate a unique identifier for this virtual user
+      val suffix = uniqueSuffix()
+      // The username/login ID used for Auth is the unique email address
+      val username = s"${realFirstName.toLowerCase}.${realLastName.toLowerCase}.$suffix@localbakery.com"
+
+      // Store all unique and pre-generated data in the session
+      session.set("username", username)
+        .set("orderData", orderData(suffix))
+        .set("updatedOrderData", updatedOrderData(suffix))
+    })
+
+    // --- Step 1: Register New User (Each VU registers a unique user) ---
+    .exec(http("Auth - Register Customer")
+      .post("/api/auth/register")
+      .body(StringBody(s"""{"username": "$${username}", "password": "$testPassword"}"""))
+      .check(status.in(201)) // Expect 201 Created for a truly unique user
+    )
+
+    // --- Step 2: Login and Capture Token ---
+    .exec(http("Auth - Login Customer")
+      .post("/api/auth/login")
+      .body(StringBody(s"""{"username": "$${username}", "password": "$testPassword"}"""))
+      .check(status.is(200))
+      // Crucial step: Capture the JWT token for all subsequent secure requests
+      .check(jsonPath("$.token").exists.saveAs("jwtToken"))
+    )
+
+    // =======================================================
+    // ======== POSITIVE CRUD TESTS (FOR FUNCTIONALITY) =======
+    // =======================================================
+
+    // --- Step 3 (CREATE): POST New Order ---
+    // Each VU creates its unique order
+    .exec(http("CRUD - 1. POST Order (CREATE)")
+      .post("/api/orders")
+      .header("Authorization", "Bearer ${jwtToken}") // Authorized request
+      .body(StringBody("${orderData}"))
+      .check(status.is(201)) // Expect 201 Created
+      // Capture the order ID from the response for subsequent CRUD operations
+      .check(jsonPath("$.orderId").exists.saveAs("orderId"))
+    )
+
+    // --- Step 4 (READ): GET All Orders ---
+    .exec(http("CRUD - 2. GET All Orders (READ)")
+      .get("/api/orders")
+      .header("Authorization", "Bearer ${jwtToken}") // Authorized request
+      .check(status.is(200))
+      // Check if the root element is a JSON array
+      .check(jsonPath("$").ofList.exists)
+    )
+
+    // --- Step 5 (UPDATE): PUT/Modify Order Status/Items ---
+    .exec(http("CRUD - 3. PUT Order (UPDATE)")
+      .put("/api/orders/${orderId}")
+      .header("Authorization", "Bearer ${jwtToken}") // Authorized request
+      .body(StringBody("${updatedOrderData}"))
+      .check(status.is(200)) // Expect 200 OK
+      .check(jsonPath("$.status").is(updatedStatus)) // Verify the update took place
+    )
+
+    // =======================================================
+    // ========== NEGATIVE/SECURITY TESTS (FOR ROBUSTNESS) ===
+    // =======================================================
+
+    // --- Step 6 (NEGATIVE): Attempt Access Without Token ---
+    .exec(http("Security - 1. GET Orders (No Token)")
+      .get("/api/orders")
+      // DO NOT send Authorization header
+      .check(status.is(403)) // Expect 403 Forbidden
+    )
+
+    // --- Step 7 (NEGATIVE): Attempt Create with Invalid Data ---
+    .exec(http("Validation - 2. POST Order (Invalid Data)")
+      .post("/api/orders")
+      .header("Authorization", "Bearer ${jwtToken}")
+      .body(StringBody(invalidOrderData))
+      .check(status.is(400)) // Expect 400 Bad Request
+    )
+
+
+    // =======================================================
+    // ========== CLEANUP/FINAL POSITIVE TEST ================
+        // =======================================================
+
+        // --- Step 8 (DELETE): DELETE Order (Cleanup) ---
+        .exec(http("CRUD - 4. DELETE Order (DELETE)")
+          .delete("/api/orders/${orderId}")
+          .header("Authorization", "Bearer ${jwtToken}") // Authorized request
+          .check(status.is(204)) // Expect 204 No Content for successful deletion
+        )
+
+
+      // --- 4. Load Injection (Setup) ---
+
+      setUp(
+        // INJECTION PROFILE: Ramp up 25 unique users over 10 seconds for a steady, concurrent load test.
+        scn.inject(rampUsers(25).during(10.seconds))
+        .protocols(httpProtocol)
+      )
+      // GLOBAL THROTTLE: Enforce a maximum duration for the entire simulation to prevent runaway tests.
+      .maxDuration(90.seconds)
+    }D
